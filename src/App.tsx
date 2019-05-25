@@ -3,6 +3,7 @@ import './App.css';
 import { playAudio } from './Audio';
 import CORRECT from './resources/correct.mp3';
 import COMPLETE from './resources/complete.mp3';
+import WRONG from './resources/wrong.mp3';
 import Word from './components/Word';
 
 interface Props {}
@@ -24,7 +25,7 @@ class App extends React.Component<Props, State>{
 
   constructor(props: Props) {
     super(props);
-    this.text = ["this", "is", "an", "test"];
+    this.text = ["this", "is", "a", "test"];
     this.wordIndex = 0;
     this.state = {
       words: [{
@@ -41,42 +42,14 @@ class App extends React.Component<Props, State>{
     const activeIndex = this.getActiveIndex();
         
     if (activeIndex !== null) {
-      const newWords = [...this.state.words];
-      const activeWord = newWords[activeIndex];
-      if (guess === activeWord.text.charAt(activeWord.charIndex)) {
-        if (activeWord.charIndex === activeWord.text.length-1) {
-          newWords.splice(activeIndex, 1);
-          this.wordIndex += 1;
-          newWords.push({
-            text: this.text[this.wordIndex],
-            complete: false,
-            active: false,
-            charIndex: 0,
-          })
-          playAudio(COMPLETE);
-        } else {
-          playAudio(CORRECT, 0.5);
-        }
-        
-        activeWord.charIndex += 1;
-        this.setState({
-          words: newWords
-        });        
-      }
+      this.checkGuess(guess, activeIndex);
     } else {
       const matchingIndex = this.findMatchingIndex(guess);
       
       if (matchingIndex !== null) {
-        const newWords = [...this.state.words];
-        const matchingWord = newWords[matchingIndex];
-        
-        playAudio(CORRECT, 0.5);
-        matchingWord.active = true;
-        matchingWord.charIndex += 1;
-        
-        this.setState({
-          words: newWords
-        });
+        this.checkGuess(guess, matchingIndex);
+      } else {
+        playAudio(WRONG);
       }
     }
   }
@@ -117,6 +90,34 @@ class App extends React.Component<Props, State>{
       }
     }
     return null;
+  }
+
+  checkGuess = (guess: string, index: number): void => {
+    const newWords = [...this.state.words];
+    const currentWord = newWords[index];
+    if (guess === currentWord.text.charAt(currentWord.charIndex)) {
+      if (currentWord.charIndex === currentWord.text.length-1) {
+        newWords.splice(index, 1);
+        this.wordIndex += 1;
+        newWords.push({
+          text: this.text[this.wordIndex],
+          complete: false,
+          active: false,
+          charIndex: 0,
+        })
+        playAudio(COMPLETE);
+      } else {
+        playAudio(CORRECT, 0.5);
+        currentWord.charIndex += 1;
+        currentWord.active = true;
+      }
+      
+      this.setState({
+        words: newWords
+      });  
+    } else {
+      playAudio(WRONG);
+    }
   }
 }
 
