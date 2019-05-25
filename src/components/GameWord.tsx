@@ -1,7 +1,7 @@
 import * as React from 'react';
-import './Word.css';
+import './GameWord.css';
 
-export interface Props {
+interface Props {
   text: string;
   complete: boolean;
   active: boolean;
@@ -11,7 +11,7 @@ export interface Props {
 interface State {
 }
 
-class Word extends React.Component<Props, State> {
+class GameWord extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
   }
@@ -29,4 +29,4 @@ class Word extends React.Component<Props, State> {
 
 }
 
-export default Word;
+export default GameWord;

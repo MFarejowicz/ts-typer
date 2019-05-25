@@ -1,25 +1,27 @@
 import * as React from 'react';
-import './App.css';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import * as actions from './store/game/actions';
+import { AppState } from './store';
+import { Word, GameState, UpdateWordsAction } from './store/game/types';
 import { playAudio } from './Audio';
-import CORRECT from './resources/correct.mp3';
-import COMPLETE from './resources/complete.mp3';
-import WRONG from './resources/wrong.mp3';
-import Word from './components/Word';
+import GameWord from './components/GameWord';
+import './App.css';
 
-interface Props {}
+const mapStateToProps = (state: AppState) => ({
+  game: state.game,
+});
 
-interface word {
-  text: string;
-  complete: boolean;
-  active: boolean;
-  charIndex: number;
+const mapDispatchToProps = (dispatch: Dispatch<UpdateWordsAction>) => ({
+  updateWords: (newWords: Word[]) => dispatch(actions.updateWords(newWords)),
+});
+
+interface Props {
+  game: GameState;
+  updateWords: (newWords: Word[]) => UpdateWordsAction;
 }
 
-interface State {
-  words: word[];
-}
-
-class App extends React.Component<Props, State>{
+class App extends React.Component<Props>{
   text: string[];
   wordIndex: number;
 
@@ -27,14 +29,6 @@ class App extends React.Component<Props, State>{
     super(props);
     this.text = ["this", "is", "a", "test"];
     this.wordIndex = 0;
-    this.state = {
-      words: [{
-        text: this.text[0],
-        complete: false,
-        active: false,
-        charIndex: 0,
-      }],
-    };
   }
 
   handleKeyPress = (e: KeyboardEvent) => {
@@ -49,7 +43,7 @@ class App extends React.Component<Props, State>{
       if (matchingIndex !== null) {
         this.checkGuess(guess, matchingIndex);
       } else {
-        playAudio(WRONG);
+        playAudio('WRONG');
       }
     }
   }
@@ -65,16 +59,16 @@ class App extends React.Component<Props, State>{
   public render() {
     return (
       <div>
-        {this.state.words.map((el, index) => {
-          return <Word key={index} text={el.text} complete={el.complete} active={el.active} charIndex={el.charIndex}/>
+        {this.props.game.words.map((el, index) => {
+          return <GameWord key={index} text={el.text} complete={el.complete} active={el.active} charIndex={el.charIndex}/>
         })}
       </div>
     );
   }
 
   getActiveIndex = (): number | null => {
-    for (let i = 0; i < this.state.words.length; i++) {
-      const word = this.state.words[i];
+    for (let i = 0; i < this.props.game.words.length; i++) {
+      const word = this.props.game.words[i];
       if (word.active) {
         return i;
       }
@@ -83,8 +77,8 @@ class App extends React.Component<Props, State>{
   }
 
   findMatchingIndex = (guess: string): number | null => {
-    for (let i = 0; i < this.state.words.length; i++) {
-      const word = this.state.words[i];
+    for (let i = 0; i < this.props.game.words.length; i++) {
+      const word = this.props.game.words[i];
       if (guess === word.text.charAt(0)) {
         return i;
       }
@@ -93,7 +87,7 @@ class App extends React.Component<Props, State>{
   }
 
   checkGuess = (guess: string, index: number): void => {
-    const newWords = [...this.state.words];
+    const newWords = [...this.props.game.words];
     const currentWord = newWords[index];
     if (guess === currentWord.text.charAt(currentWord.charIndex)) {
       if (currentWord.charIndex === currentWord.text.length-1) {
@@ -105,20 +99,18 @@ class App extends React.Component<Props, State>{
           active: false,
           charIndex: 0,
         })
-        playAudio(COMPLETE);
+        playAudio('COMPLETE');
       } else {
-        playAudio(CORRECT, 0.5);
+        playAudio('CORRECT', 0.5);
         currentWord.charIndex += 1;
         currentWord.active = true;
       }
       
-      this.setState({
-        words: newWords
-      });  
+      this.props.updateWords(newWords);
     } else {
-      playAudio(WRONG);
+      playAudio('WRONG');
     }
   }
 }
 
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
