@@ -1,11 +1,8 @@
 .word {
   position: absolute;
-  left: 10vh;
-  top: 10vh;
   padding: 10px;
   font-size: 48px;
   font-family: sans-serif;
-  border: 1px solid black;
 }
   
 .word-start {

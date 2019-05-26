@@ -3,6 +3,8 @@ export interface Word {
   complete: boolean;
   active: boolean;
   charIndex: number;
+  top: number;
+  left: number;
 }
 
 export interface GameState {
@@ -12,9 +14,16 @@ export interface GameState {
 export const UPDATE_WORDS = 'UPDATE_WORDS';
 export type UPDATE_WORDS = typeof UPDATE_WORDS;
 
+export const MOVE_WORDS = 'MOVE_WORDS';
+export type MOVE_WORDS = typeof MOVE_WORDS;
+
 export interface UpdateWordsAction {
   type: UPDATE_WORDS;
   words: Word[];
 }
 
-export type GameActionType = UpdateWordsAction;
+export interface MoveWordsAction {
+  type: MOVE_WORDS;
+}
+
+export type GameActionType = UpdateWordsAction | MoveWordsAction;

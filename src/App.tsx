@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import * as actions from './store/game/actions';
 import { AppState } from './store';
-import { Word, GameState, UpdateWordsAction } from './store/game/types';
+import { Word, GameState, GameActionType } from './store/game/types';
 import { playAudio } from './Audio';
 import GameWord from './components/GameWord';
 import './App.css';
@@ -12,27 +12,34 @@ const mapStateToProps = (state: AppState) => ({
   game: state.game,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<UpdateWordsAction>) => ({
+const mapDispatchToProps = (dispatch: Dispatch<GameActionType>) => ({
   updateWords: (newWords: Word[]) => dispatch(actions.updateWords(newWords)),
+  moveWords: () => dispatch(actions.moveWords()),
 });
 
 interface Props {
   game: GameState;
-  updateWords: (newWords: Word[]) => UpdateWordsAction;
+  updateWords: (newWords: Word[]) => GameActionType;
+  moveWords: () => GameActionType;
 }
 
 class App extends React.Component<Props>{
   text: string[];
   wordIndex: number;
+  intervalID: NodeJS.Timeout;
 
   constructor(props: Props) {
     super(props);
-    this.text = ["this", "is", "a", "test"];
-    this.wordIndex = 0;
+    this.text = ["here", "are", "a", "bunch", "of", "words", "and", "i", "hope", "this", "works"];
   }
 
-  handleKeyPress = (e: KeyboardEvent) => {
-    const guess = e.key;
+  tick = (): void => {
+    // A tick happens every 1/50th of a second.
+    this.props.moveWords();
+  }
+
+  handleKeyPress = (e: KeyboardEvent): void => {
+    const guess = e.key.toLowerCase();
     const activeIndex = this.getActiveIndex();
         
     if (activeIndex !== null) {
@@ -48,19 +55,22 @@ class App extends React.Component<Props>{
     }
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     document.addEventListener('keydown', this.handleKeyPress);
+    this.intervalID = setInterval(() => this.tick(), 20);
   }
   
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     document.removeEventListener('keydown', this.handleKeyPress);
+    clearInterval(this.intervalID);
   }
   
   public render() {
     return (
       <div>
         {this.props.game.words.map((el, index) => {
-          return <GameWord key={index} text={el.text} complete={el.complete} active={el.active} charIndex={el.charIndex}/>
+          return <GameWord key={index} text={el.text} complete={el.complete} active={el.active} 
+                    charIndex={el.charIndex} top={el.top} left={el.left} />
         })}
       </div>
     );
@@ -86,6 +96,10 @@ class App extends React.Component<Props>{
     return null;
   }
 
+  choose(items: string[]): string {
+    return items[Math.floor(Math.random() * items.length)];
+ }
+
   checkGuess = (guess: string, index: number): void => {
     const newWords = [...this.props.game.words];
     const currentWord = newWords[index];
@@ -94,10 +108,12 @@ class App extends React.Component<Props>{
         newWords.splice(index, 1);
         this.wordIndex += 1;
         newWords.push({
-          text: this.text[this.wordIndex],
+          text: this.choose(this.text),
           complete: false,
           active: false,
           charIndex: 0,
+          top: 50,
+          left: 100,
         })
         playAudio('COMPLETE');
       } else {

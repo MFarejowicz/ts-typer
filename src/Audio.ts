@@ -1,6 +1,6 @@
-import CORRECT from './resources/correct.mp3';
-import COMPLETE from './resources/complete.mp3';
-import WRONG from './resources/wrong.mp3';
+import CORRECT from './resources/audio/correct.mp3';
+import COMPLETE from './resources/audio/complete.mp3';
+import WRONG from './resources/audio/wrong.mp3';
 
 const audioMap = {
   'CORRECT': CORRECT,
