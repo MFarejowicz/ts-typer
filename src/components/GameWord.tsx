@@ -2,12 +2,15 @@ import * as React from 'react';
 import './GameWord.css';
 
 interface Props {
+  id: number;
   text: string;
   complete: boolean;
   active: boolean;
   charIndex: number;
   top: number;
   left: number;
+  speed: number;
+  handleLoss: (index: number) => void;
 }
 
 interface State {
@@ -24,8 +27,12 @@ class GameWord extends React.Component<Props, State> {
     const liveStyle = {
       border: (active) ? "1px solid green" : "1px solid black",
       top: `${this.props.top}vh`,
-      left: `${this.props.left}vh`,
+      left: `${this.props.left}vw`,
     };
+
+    if (this.props.left <= 0) {
+      this.props.handleLoss(this.props.id);
+    }
 
     return (
       <div className="word" style={liveStyle}>

@@ -2,3 +2,9 @@
   display: flex;
   justify-content: center;
 }
+
+.game-info {
+  font-size: 30px;
+  position: absolute;
+  left: 90vw;
+}
