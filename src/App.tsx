@@ -4,13 +4,16 @@ import { Dispatch } from 'redux';
 import * as actions from './store/game/actions';
 import { AppState } from './store';
 import { PHASE, Word, GameActionType } from './store/game/types';
+import { parseText } from './TextParse';
 import { playAudio } from './Audio';
+import StartScreen from './components/StartScreen';
 import SafeZone from './components/SafeZone';
 import GameInfo from './components/GameInfo';
 import GameWord from './components/GameWord';
 import './App.css';
 
 const mapStateToProps = (state: AppState) => ({
+  wordSet: state.game.wordSet,
   phase: state.game.phase,
   hp: state.game.hp,
   score: state.game.score,
@@ -27,6 +30,7 @@ const mapDispatchToProps = (dispatch: Dispatch<GameActionType>) => ({
 });
 
 interface Props {
+  wordSet: string;
   phase: PHASE;
   hp: number;
   score: number;
@@ -45,7 +49,6 @@ class App extends React.Component<Props>{
 
   constructor(props: Props) {
     super(props);
-    this.text = ["here", "are", "a", "bunch", "of", "words", "and", "i", "hope", "this", "works"];
   }
 
   tick = (): void => {
@@ -84,16 +87,17 @@ class App extends React.Component<Props>{
     playAudio('OOF');
   }
 
-  handleKeyPress = (e: KeyboardEvent): void => {
+  handleKeyPress = (event: KeyboardEvent): void => {
     switch (this.props.phase) {
       case PHASE.START:
-        if (e.key === ' ') {
+        if (event.key === ' ') {
+          this.text = parseText(this.props.wordSet);
           this.props.changePhase(PHASE.ACTION);
+          this.intervalID = setInterval(() => this.tick(), 20);
         }
-        this.intervalID = setInterval(() => this.tick(), 20);
         break;
       case PHASE.ACTION:
-          const guess = e.key.toLowerCase();
+          const guess = event.key.toLowerCase();
           const activeIndex = this.getActiveIndex();
               
           if (activeIndex !== null) {
@@ -109,7 +113,7 @@ class App extends React.Component<Props>{
           }
           break;
       case PHASE.END:
-          if (e.key === ' ') {
+          if (event.key === ' ') {
             this.props.reset();
           }
           break;
@@ -131,7 +135,7 @@ class App extends React.Component<Props>{
       case PHASE.START:
         return (
           <div>
-            This is a meme game. Press space to start.
+            <StartScreen />
           </div>
         );
       case PHASE.ACTION:

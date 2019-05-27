@@ -15,11 +15,15 @@ export interface Word {
 }
 
 export interface GameState {
+  wordSet: string;
   phase: PHASE;
   hp: number;
   score: number;
   words: Word[];
 }
+
+export const CHANGE_WORD_SET = 'CHANGE_WORD_SET';
+export type CHANGE_WORD_SET = typeof CHANGE_WORD_SET;
 
 export const CHANGE_PHASE = 'CHANGE_PHASE';
 export type CHANGE_PHASE = typeof CHANGE_PHASE;
@@ -38,6 +42,11 @@ export type UP_SCORE = typeof UP_SCORE;
 
 export const RESET = 'RESET';
 export type RESET = typeof RESET;
+
+export interface ChangeWordSetAction {
+  type: CHANGE_WORD_SET;
+  wordSet: string;
+}
 
 export interface ChangePhaseAction {
   type: CHANGE_PHASE;
@@ -66,4 +75,5 @@ export interface ResetAction {
   type: RESET;
 }
 
-export type GameActionType = ChangePhaseAction | UpdateWordsAction | MoveWordsAction | LoseHPAction | UpScoreAction | ResetAction;
+export type GameActionType = ChangeWordSetAction | ChangePhaseAction | UpdateWordsAction | 
+                             MoveWordsAction | LoseHPAction | UpScoreAction | ResetAction;

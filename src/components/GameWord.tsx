@@ -25,7 +25,8 @@ class GameWord extends React.Component<Props, State> {
     const { text, active, charIndex } = this.props;
 
     const liveStyle = {
-      border: (active) ? "1px solid green" : "1px solid black",
+      border: (active) ? "2px solid #0e8c3a" : "2px solid black",
+      backgroundColor: (active) ? "#e8f4ed": "white",
       top: `${this.props.top}vh`,
       left: `calc(100px + ${this.props.left}vw)`,
     };

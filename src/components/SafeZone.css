@@ -1,6 +1,6 @@
 .safe-zone {
   position: absolute;
-  background-color: greenyellow;
+  background-color: #ff9912;
   height: 100vh;
   width: 105px;
 }
