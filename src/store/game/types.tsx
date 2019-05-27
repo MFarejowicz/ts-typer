@@ -1,3 +1,9 @@
+export enum PHASE {
+  START = 'START',
+  ACTION = 'ACTION',
+  END = 'END'
+}
+
 export interface Word {
   text: string;
   complete: boolean;
@@ -9,10 +15,14 @@ export interface Word {
 }
 
 export interface GameState {
+  phase: PHASE;
   hp: number;
   score: number;
   words: Word[];
 }
+
+export const CHANGE_PHASE = 'CHANGE_PHASE';
+export type CHANGE_PHASE = typeof CHANGE_PHASE;
 
 export const UPDATE_WORDS = 'UPDATE_WORDS';
 export type UPDATE_WORDS = typeof UPDATE_WORDS;
@@ -25,6 +35,14 @@ export type LOSE_HP = typeof LOSE_HP;
 
 export const UP_SCORE = 'UP_SCORE';
 export type UP_SCORE = typeof UP_SCORE;
+
+export const RESET = 'RESET';
+export type RESET = typeof RESET;
+
+export interface ChangePhaseAction {
+  type: CHANGE_PHASE;
+  phase: PHASE;
+}
 
 export interface UpdateWordsAction {
   type: UPDATE_WORDS;
@@ -44,4 +62,8 @@ export interface UpScoreAction {
   amount: number;
 }
 
-export type GameActionType = UpdateWordsAction | MoveWordsAction | LoseHPAction | UpScoreAction;
+export interface ResetAction {
+  type: RESET;
+}
+
+export type GameActionType = ChangePhaseAction | UpdateWordsAction | MoveWordsAction | LoseHPAction | UpScoreAction | ResetAction;

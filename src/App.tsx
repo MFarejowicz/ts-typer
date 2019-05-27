@@ -3,37 +3,44 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import * as actions from './store/game/actions';
 import { AppState } from './store';
-import { Word, GameActionType } from './store/game/types';
+import { PHASE, Word, GameActionType } from './store/game/types';
 import { playAudio } from './Audio';
+import SafeZone from './components/SafeZone';
+import GameInfo from './components/GameInfo';
 import GameWord from './components/GameWord';
 import './App.css';
 
 const mapStateToProps = (state: AppState) => ({
+  phase: state.game.phase,
   hp: state.game.hp,
   score: state.game.score,
   words: state.game.words,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<GameActionType>) => ({
-  updateWords: (newWords: Word[]) => dispatch(actions.updateWords(newWords)),
-  moveWords: () => dispatch(actions.moveWords()),
+  changePhase: (phase: PHASE) => dispatch(actions.changePhase(phase)),
   loseHP: () => dispatch(actions.loseHP()),
   upScore: (amount: number) => dispatch(actions.upScore(amount)),
+  updateWords: (words: Word[]) => dispatch(actions.updateWords(words)),
+  moveWords: () => dispatch(actions.moveWords()),
+  reset: () => dispatch(actions.reset()),
 });
 
 interface Props {
+  phase: PHASE;
   hp: number;
   score: number;
   words: Word[];
-  updateWords: (newWords: Word[]) => GameActionType;
+  changePhase: (phase: PHASE) => GameActionType;
+  updateWords: (words: Word[]) => GameActionType;
   moveWords: () => GameActionType;
   loseHP: () => GameActionType;
   upScore: (amount: number) => GameActionType;
+  reset: () => GameActionType;
 }
 
 class App extends React.Component<Props>{
   text: string[];
-  wordIndex: number;
   intervalID: NodeJS.Timeout;
 
   constructor(props: Props) {
@@ -44,8 +51,14 @@ class App extends React.Component<Props>{
   tick = (): void => {
     // A tick happens every 1/50th of a second.
     this.props.moveWords();
+
     if (Math.random() < 0.01) {
       this.spawn();
+    }
+
+    if (this.props.hp <= 0) {
+      clearInterval(this.intervalID);
+      this.props.changePhase(PHASE.END);
     }
   }
 
@@ -57,7 +70,7 @@ class App extends React.Component<Props>{
       active: false,
       charIndex: 0,
       top: Math.floor(Math.random() * 80) + 10,
-      left: 100,
+      left: 95,
       speed: 0.2,
     });
     this.props.updateWords(newWords);
@@ -72,51 +85,75 @@ class App extends React.Component<Props>{
   }
 
   handleKeyPress = (e: KeyboardEvent): void => {
-    const guess = e.key.toLowerCase();
-    const activeIndex = this.getActiveIndex();
-        
-    if (activeIndex !== null) {
-      this.checkGuess(guess, activeIndex);
-    } else {
-      const matchingIndex = this.findMatchingIndex(guess);
-      
-      if (matchingIndex !== null) {
-        this.checkGuess(guess, matchingIndex);
-      } else {
-        playAudio('WRONG');
-      }
+    switch (this.props.phase) {
+      case PHASE.START:
+        if (e.key === ' ') {
+          this.props.changePhase(PHASE.ACTION);
+        }
+        this.intervalID = setInterval(() => this.tick(), 20);
+        break;
+      case PHASE.ACTION:
+          const guess = e.key.toLowerCase();
+          const activeIndex = this.getActiveIndex();
+              
+          if (activeIndex !== null) {
+            this.checkGuess(guess, activeIndex);
+          } else {
+            const matchingIndex = this.findMatchingIndex(guess);
+            
+            if (matchingIndex !== null) {
+              this.checkGuess(guess, matchingIndex);
+            } else {
+              playAudio('WRONG');
+            }
+          }
+          break;
+      case PHASE.END:
+          if (e.key === ' ') {
+            this.props.reset();
+          }
+          break;
+      default:
+        throw 'Should never get here';
     }
   }
 
   componentDidMount(): void {
     document.addEventListener('keydown', this.handleKeyPress);
-    this.intervalID = setInterval(() => this.tick(), 20);
   }
   
   componentWillUnmount(): void {
     document.removeEventListener('keydown', this.handleKeyPress);
-    clearInterval(this.intervalID);
   }
   
   public render() {
-    return (
-      <div>
-        <div className='game-info'>
-          <div className='hp'>
-            <span>HP: </span>
-            <span>{this.props.hp}</span>
+    switch (this.props.phase) {
+      case PHASE.START:
+        return (
+          <div>
+            This is a meme game. Press space to start.
           </div>
-          <div className='score'>
-            <span>Score: </span>
-            <span>{this.props.score}</span>
+        );
+      case PHASE.ACTION:
+        return (
+          <div>
+            <SafeZone />
+            <GameInfo hp={this.props.hp} score={this.props.score} />
+            {this.props.words.map((el, index) => {
+              return <GameWord key={index} id={index} text={el.text} complete={el.complete} active={el.active} 
+                      charIndex={el.charIndex} top={el.top} left={el.left} speed={el.speed} handleLoss={this.handleLoss}/>
+            })}
           </div>
-        </div>
-        {this.props.words.map((el, index) => {
-          return <GameWord key={index} id={index} text={el.text} complete={el.complete} active={el.active} 
-                    charIndex={el.charIndex} top={el.top} left={el.left} speed={el.speed} handleLoss={this.handleLoss}/>
-        })}
-      </div>
-    );
+        );
+      case PHASE.END:
+        return (
+          <div>
+            LOL you lost. Press space to head back to the start.
+          </div>
+        );
+      default:
+        throw 'Should never get here';
+    }
   }
 
   getActiveIndex = (): number | null => {
