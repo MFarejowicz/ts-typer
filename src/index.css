@@ -1,12 +1,20 @@
+@import url('https://fonts.googleapis.com/css?family=Jockey+One|Roboto&display=swap');
+
 body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  background-color: #e6edf3
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: 'Jockey One', sans-serif;
   margin: 2px;
   padding: 0;
+}
+
+div, span, select {
+  font-family: 'Roboto', sans-serif;
 }
 
 .center-column {
@@ -16,12 +24,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .text-section {
-  margin: 20px 0px;
+  margin: 15px 0px;
   width: 40vw;
 }
 
-.title {
-  font-weight: bold;
-  font-size: 50px;
-  margin: 10px 0px;
+.text-block {
+  font-size: 16px;
+  line-height: 150%;
 }

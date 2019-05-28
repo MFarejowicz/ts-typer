@@ -5,7 +5,7 @@ import * as actions from './store/game/actions';
 import { AppState } from './store';
 import { PHASE, Word, GameActionType } from './store/game/types';
 import { parseText } from './TextParse';
-import { playAudio } from './Audio';
+import { playAudio, stopAudio } from './Audio';
 import StartScreen from './components/StartScreen';
 import SafeZone from './components/SafeZone';
 import GameInfo from './components/GameInfo';
@@ -44,37 +44,70 @@ interface Props {
 }
 
 class App extends React.Component<Props>{
+  frame: number;
+  spawnChance: number;
+  speed: number;
   text: string[];
   intervalID: NodeJS.Timeout;
-
+  lastY: number;
+  
   constructor(props: Props) {
     super(props);
+    this.frame = 0;
+    this.spawnChance = 0.005;
+    this.speed = 0.2;
+    this.lastY = 0;
+  }
+
+  internalReset = (): void => {
+    this.frame = 0;
+    this.spawnChance = 0.005;
+    this.speed = 0.2;
+    this.lastY = 0;
   }
 
   tick = (): void => {
-    // A tick happens every 1/50th of a second.
+    // A tick happens every 1/50th of a second.    
+    this.frame += 1;
+
     this.props.moveWords();
 
-    if (Math.random() < 0.01) {
+    if (Math.random() < this.spawnChance) {
       this.spawn();
     }
 
     if (this.props.hp <= 0) {
       clearInterval(this.intervalID);
       this.props.changePhase(PHASE.END);
+      stopAudio('BACKGROUND');
+      return;
+    }
+
+    if (this.frame % 2500 === 0) {
+      this.speed += 0.05;
+      playAudio('LVLUP');
+    } else if (this.frame % 500 === 0) {
+      this.spawnChance += 0.001;
+      playAudio('BEEP');
     }
   }
 
   spawn = () => {
+    let newY = Math.floor(Math.random() * 80) + 10;
+    while (Math.abs(newY - this.lastY) < 10) {
+      newY = Math.floor(Math.random() * 80) + 10;
+    }
+    this.lastY = newY;
+    
     const newWords = [...this.props.words];
     newWords.push({
       text: this.choose(this.text),
       complete: false,
       active: false,
       charIndex: 0,
-      top: Math.floor(Math.random() * 80) + 10,
+      top: newY,
       left: 95,
-      speed: 0.2,
+      speed: this.speed,
     });
     this.props.updateWords(newWords);
   }
@@ -91,6 +124,8 @@ class App extends React.Component<Props>{
     switch (this.props.phase) {
       case PHASE.START:
         if (event.key === ' ') {
+          playAudio('START');
+          playAudio('BACKGROUND');
           this.text = parseText(this.props.wordSet);
           this.props.changePhase(PHASE.ACTION);
           this.intervalID = setInterval(() => this.tick(), 20);
@@ -114,6 +149,7 @@ class App extends React.Component<Props>{
           break;
       case PHASE.END:
           if (event.key === ' ') {
+            this.internalReset();
             this.props.reset();
           }
           break;
@@ -180,7 +216,7 @@ class App extends React.Component<Props>{
     return null;
   }
 
-  choose(items: string[]): string {
+  choose(items: any[]): any {
     return items[Math.floor(Math.random() * items.length)];
  }
 

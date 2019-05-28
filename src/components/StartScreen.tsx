@@ -26,32 +26,44 @@ class StartScreen extends React.Component<Props> {
     return (
       <div className='center-column'>
         <div className='title'>TS TYPER</div>
-        <div className='info text-section center-column'>
+        <div className='info text-section'>
           <h1>Info</h1>
-          <div>
-            A game inspired by <a href='https://en.wikipedia.org/wiki/The_Typing_of_the_Dead'>The Typing of the Dead</a>.
+          <div className='text-block'>
+            This game was inspired by <a href='https://en.wikipedia.org/wiki/The_Typing_of_the_Dead'>The Typing of the Dead</a>. It is
+            intended to be a fun way to practice typing skills.
+            <br/>
+            The game is written in <a href='https://www.typescriptlang.org/docs/handbook/react-&-webpack.html'>React with Typescript</a>, 
+            and utilizes the <a href='https://redux.js.org/recipes/usage-with-typescript'>Redux</a> library for state management. This was 
+            my first experience setting up and using Typescript or Redux!
+            <br/>
+            Please report any issues you find to the <a href='https://github.com/MFarejowicz/ts-typer'>GitHub repository</a>.
           </div>
         </div>
-        <div className='how-to-play text-section center-column'>
+        <div className='how-to-play text-section'>
           <h1>How to play</h1>
-          <div>
-            Words will come from the right side of the screen. Type out the word to destroy it. 
+          <div className='text-block'>
+            Words emerge from the right side of the screen. You must type out the word to destroy it. 
             <br/>
             Once you start a word, you must finish it before starting another word. The current active word will be marked in green.
             <br/>
             If a word reaches the DANGER ZONE on the left side (indicated in orange), you will lose HP.
             <br/>
-            Try to survive as long as possible!
+            Every 10 seconds, the spawn rate of words will slightly increase. This will be indicated by a beep. Every 50 seconds,
+            the speed of words will increase. This will be indicated by a bloop.
+            <br/>
+            Your HP and score are on the top right. Try to survive as long as possible!
           </div>
         </div>
-        <div className='settings text-section center-column'>
+        <div className='settings text-section'>
           <h1>Settings</h1>
-          <div>
-          <span>{`Word set: `}</span>
-          <select onChange={this.handleSelect}>
-            <option value='common'>Common</option>
-            <option value='borrowed'>Borrowed</option>
-          </select>
+          <div className='text-block'>
+            <div className='single-setting'>
+              <span className='setting-label'>{`Word set: `}</span>
+              <select onChange={this.handleSelect}>
+                <option value='common'>Common</option>
+                <option value='borrowed'>Borrowed</option>
+              </select>
+            </div>
           </div>
         </div>
         <div className='text-section center-column'>

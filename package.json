@@ -1,9 +1,11 @@
 {
   "name": "ts-twister",
+  "homepage": "https://mfarejowicz.github.io/ts-typer",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@types/react-redux": "^7.0.9",
+    "gh-pages": "^2.0.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.3",
@@ -11,6 +13,8 @@
     "redux": "^4.0.1"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",

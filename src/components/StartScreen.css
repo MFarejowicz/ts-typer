@@ -1,0 +1,17 @@
+h1 {
+  font-size: 40px;
+}
+
+.title {
+  font-family: 'Jockey One', sans-serif;
+  font-size: 80px;
+}
+
+.single-setting {
+  display: flex;
+  align-items: center;
+}
+
+.setting-label {
+  margin-right: 4px;
+}
