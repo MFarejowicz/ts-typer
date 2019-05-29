@@ -10,6 +10,7 @@ import StartScreen from './components/StartScreen';
 import SafeZone from './components/SafeZone';
 import GameInfo from './components/GameInfo';
 import GameWord from './components/GameWord';
+import EndScreen from './components/EndScreen';
 import './App.css';
 
 const mapStateToProps = (state: AppState) => ({
@@ -17,6 +18,7 @@ const mapStateToProps = (state: AppState) => ({
   phase: state.game.phase,
   hp: state.game.hp,
   score: state.game.score,
+  streak: state.game.streak,
   words: state.game.words,
 });
 
@@ -24,9 +26,11 @@ const mapDispatchToProps = (dispatch: Dispatch<GameActionType>) => ({
   changePhase: (phase: PHASE) => dispatch(actions.changePhase(phase)),
   loseHP: () => dispatch(actions.loseHP()),
   upScore: (amount: number) => dispatch(actions.upScore(amount)),
+  upStreak: () => dispatch(actions.upStreak()),
+  resetStreak: () => dispatch(actions.resetStreak()),
   updateWords: (words: Word[]) => dispatch(actions.updateWords(words)),
   moveWords: () => dispatch(actions.moveWords()),
-  reset: () => dispatch(actions.reset()),
+  resetGame: () => dispatch(actions.resetGame()),
 });
 
 interface Props {
@@ -34,13 +38,16 @@ interface Props {
   phase: PHASE;
   hp: number;
   score: number;
+  streak: number;
   words: Word[];
   changePhase: (phase: PHASE) => GameActionType;
-  updateWords: (words: Word[]) => GameActionType;
-  moveWords: () => GameActionType;
   loseHP: () => GameActionType;
   upScore: (amount: number) => GameActionType;
-  reset: () => GameActionType;
+  upStreak: () => GameActionType;
+  resetStreak: () => GameActionType;
+  updateWords: (words: Word[]) => GameActionType;
+  moveWords: () => GameActionType;
+  resetGame: () => GameActionType;
 }
 
 class App extends React.Component<Props>{
@@ -48,14 +55,16 @@ class App extends React.Component<Props>{
   spawnChance: number;
   speed: number;
   text: string[];
-  intervalID: NodeJS.Timeout;
+  maxStreak: number;
   lastY: number;
+  intervalID: NodeJS.Timeout;
   
   constructor(props: Props) {
     super(props);
     this.frame = 0;
     this.spawnChance = 0.005;
     this.speed = 0.2;
+    this.maxStreak = 0;
     this.lastY = 0;
   }
 
@@ -63,6 +72,7 @@ class App extends React.Component<Props>{
     this.frame = 0;
     this.spawnChance = 0.005;
     this.speed = 0.2;
+    this.maxStreak = 0;
     this.lastY = 0;
   }
 
@@ -90,6 +100,9 @@ class App extends React.Component<Props>{
       this.spawnChance += 0.001;
       playAudio('BEEP');
     }
+
+    console.log(this.maxStreak);
+    
   }
 
   spawn = () => {
@@ -144,13 +157,14 @@ class App extends React.Component<Props>{
               this.checkGuess(guess, matchingIndex);
             } else {
               playAudio('WRONG');
+              this.props.resetStreak();
             }
           }
           break;
       case PHASE.END:
           if (event.key === ' ') {
             this.internalReset();
-            this.props.reset();
+            this.props.resetGame();
           }
           break;
       default:
@@ -178,7 +192,7 @@ class App extends React.Component<Props>{
         return (
           <div>
             <SafeZone />
-            <GameInfo hp={this.props.hp} score={this.props.score} />
+            <GameInfo hp={this.props.hp} score={this.props.score} streak={this.props.streak} />
             {this.props.words.map((el, index) => {
               return <GameWord key={index} id={index} text={el.text} complete={el.complete} active={el.active} 
                       charIndex={el.charIndex} top={el.top} left={el.left} speed={el.speed} handleLoss={this.handleLoss}/>
@@ -188,7 +202,7 @@ class App extends React.Component<Props>{
       case PHASE.END:
         return (
           <div>
-            LOL you lost. Press space to head back to the start.
+            <EndScreen score={this.props.score} maxStreak={this.maxStreak} />
           </div>
         );
       default:
@@ -225,18 +239,24 @@ class App extends React.Component<Props>{
     const currentWord = newWords[index];
     if (guess === currentWord.text.charAt(currentWord.charIndex)) {
       if (currentWord.charIndex === currentWord.text.length-1) {
-        newWords.splice(index, 1);
         playAudio('COMPLETE');
+        newWords.splice(index, 1);
+        this.props.upStreak();
         this.props.upScore(1);
       } else {
         playAudio('CORRECT', 0.5);
+        this.props.upStreak();
         currentWord.charIndex += 1;
         currentWord.active = true;
       }
       
+      if (this.props.streak > this.maxStreak) {
+        this.maxStreak = this.props.streak;
+      }
       this.props.updateWords(newWords);
     } else {
       playAudio('WRONG');
+      this.props.resetStreak();
     }
   }
 }

@@ -19,6 +19,7 @@ export interface GameState {
   phase: PHASE;
   hp: number;
   score: number;
+  streak: number;
   words: Word[];
 }
 
@@ -40,8 +41,14 @@ export type LOSE_HP = typeof LOSE_HP;
 export const UP_SCORE = 'UP_SCORE';
 export type UP_SCORE = typeof UP_SCORE;
 
-export const RESET = 'RESET';
-export type RESET = typeof RESET;
+export const UP_STREAK = 'UP_STREAK';
+export type UP_STREAK = typeof UP_STREAK;
+
+export const RESET_STREAK = 'RESET_STREAK';
+export type RESET_STREAK = typeof RESET_STREAK;
+
+export const RESET_GAME = 'RESET_GAME';
+export type RESET_GAME = typeof RESET_GAME;
 
 export interface ChangeWordSetAction {
   type: CHANGE_WORD_SET;
@@ -71,9 +78,18 @@ export interface UpScoreAction {
   amount: number;
 }
 
-export interface ResetAction {
-  type: RESET;
+export interface UpStreakAction {
+  type: UP_STREAK;
+}
+
+export interface ResetStreakAction {
+  type: RESET_STREAK;
+}
+
+export interface ResetGameAction {
+  type: RESET_GAME;
 }
 
 export type GameActionType = ChangeWordSetAction | ChangePhaseAction | UpdateWordsAction | 
-                             MoveWordsAction | LoseHPAction | UpScoreAction | ResetAction;
+                             MoveWordsAction | LoseHPAction | UpScoreAction | 
+                             UpStreakAction | ResetStreakAction | ResetGameAction;

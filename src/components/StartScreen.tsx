@@ -59,7 +59,7 @@ class StartScreen extends React.Component<Props> {
           <div className='text-block'>
             <div className='single-setting'>
               <span className='setting-label'>{`Word set: `}</span>
-              <select onChange={this.handleSelect}>
+              <select className='setting-select' onChange={this.handleSelect}>
                 <option value='common'>Common</option>
                 <option value='borrowed'>Borrowed</option>
               </select>

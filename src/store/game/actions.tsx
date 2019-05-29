@@ -7,7 +7,9 @@ import {
   MOVE_WORDS, 
   LOSE_HP, 
   UP_SCORE, 
-  RESET, 
+  UP_STREAK,
+  RESET_STREAK,
+  RESET_GAME, 
   GameActionType 
 } from './types';
 
@@ -51,8 +53,20 @@ export function upScore(amount: number): GameActionType {
   }
 }
 
-export function reset(): GameActionType {
+export function upStreak(): GameActionType {
   return {
-    type: RESET,
+    type: UP_STREAK,
+  }
+}
+
+export function resetStreak(): GameActionType {
+  return {
+    type: RESET_STREAK,
+  }
+}
+
+export function resetGame(): GameActionType {
+  return {
+    type: RESET_GAME,
   }
 }

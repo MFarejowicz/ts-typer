@@ -4,6 +4,7 @@ import './GameInfo.css';
 interface Props {
   hp: number,
   score: number,
+  streak: number,
 }
 
 interface State {
@@ -15,7 +16,7 @@ class GameInfo extends React.Component<Props, State> {
   }
   
   render() {
-    const { hp, score } = this.props;
+    const { hp, score, streak } = this.props;
 
     return (
       <div className='game-info'>
@@ -24,6 +25,9 @@ class GameInfo extends React.Component<Props, State> {
         </div>
         <div className='score'>
           <span>Score: {score}</span>
+        </div>
+        <div className='streak'>
+          <span>Streak: {streak}</span>
         </div>
       </div>
     );

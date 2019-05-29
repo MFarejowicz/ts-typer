@@ -15,3 +15,7 @@ h1 {
 .setting-label {
   margin-right: 4px;
 }
+
+.setting-select {
+  font-size: 16px;
+}
