@@ -106,9 +106,9 @@ class App extends React.Component<Props>{
   }
 
   spawn = () => {
-    let newY = Math.floor(Math.random() * 80) + 10;
+    let newY = Math.floor(Math.random() * 80) + 12;
     while (Math.abs(newY - this.lastY) < 10) {
-      newY = Math.floor(Math.random() * 80) + 10;
+      newY = Math.floor(Math.random() * 80) + 12;
     }
     this.lastY = newY;
     
