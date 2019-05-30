@@ -62,7 +62,7 @@ class App extends React.Component<Props>{
   constructor(props: Props) {
     super(props);
     this.frame = 0;
-    this.spawnChance = 0.005;
+    this.spawnChance = 0.05;
     this.speed = 0.2;
     this.maxStreak = 0;
     this.lastY = 0;
@@ -104,12 +104,6 @@ class App extends React.Component<Props>{
   }
 
   spawn = () => {
-    let newY = Math.floor(Math.random() * 80) + 12;
-    while (Math.abs(newY - this.lastY) < 10) {
-      newY = Math.floor(Math.random() * 80) + 12;
-    }
-    this.lastY = newY;
-    
     const newWords = [...this.props.words];
     newWords.push({
       text: this.choose(this.text),
@@ -117,7 +111,7 @@ class App extends React.Component<Props>{
       active: false,
       givenUp: false,
       charIndex: 0,
-      top: newY,
+      top: this.pickTop(),
       left: 95,
       speed: this.speed,
     });
@@ -241,7 +235,7 @@ class App extends React.Component<Props>{
 
   choose(items: any[]): any {
     return items[Math.floor(Math.random() * items.length)];
- }
+  }
 
   checkGuess = (guess: string, index: number): void => {
     const newWords = [...this.props.words];
@@ -268,6 +262,37 @@ class App extends React.Component<Props>{
       playAudio('WRONG');
       this.props.resetStreak();
     }
+  }
+
+  pickWord = (): string => {
+    let newWord = this.choose(this.text);
+    while (this.firstLetterExists(newWord)) {
+      newWord = this.choose(this.text);
+    }
+    return newWord;
+  }
+
+  firstLetterExists = (newWord: string): boolean => {
+    const firstLetter = newWord.charAt(0);
+    return this.props.words.some(el => el.text.charAt(0) === firstLetter);
+  }
+
+  pickTop = (): number => {
+    let newTop = Math.floor(Math.random() * 80) + 12;
+    while (this.topExists(newTop)) {
+      newTop = Math.floor(Math.random() * 80) + 12;
+    }
+    return newTop;
+  }
+
+  topExists = (newTop: number): boolean => {
+    const lastEl = this.props.words[this.props.words.length-1];
+    if (lastEl) {
+      return Math.abs(newTop-lastEl.top) < 8;
+    } else {
+      return false;
+    }
+    // return this.props.words.some(el => Math.abs(newTop - el.top) < 8);
   }
 
   giveUpOnWord = (index: number): void => {
