@@ -87,9 +87,10 @@ class App extends React.Component<Props>{
     }
 
     if (this.props.hp <= 0) {
+      stopAudio('BACKGROUND');
       clearInterval(this.intervalID);
       this.props.changePhase(PHASE.END);
-      stopAudio('BACKGROUND');
+      document.body.style.overflow = 'auto';
       return;
     }
 
@@ -143,6 +144,7 @@ class App extends React.Component<Props>{
           this.text = parseText(this.props.wordSet);
           this.props.changePhase(PHASE.ACTION);
           this.intervalID = setInterval(() => this.tick(), 20);
+          document.body.style.overflow = 'hidden';
         }
         break;
       case PHASE.ACTION:
