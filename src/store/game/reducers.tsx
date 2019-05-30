@@ -35,7 +35,7 @@ export function gameReducer(state: GameState = initialState, action: GameActionT
       newWords.forEach(el => el.left -= el.speed);
       return { ...state, words: newWords };
     case LOSE_HP:
-      return { ...state, hp: state.hp - 5 };
+      return { ...state, hp: state.hp - action.amount };
     case UP_SCORE:
       return { ...state, score: state.score + action.amount };
     case UP_STREAK:

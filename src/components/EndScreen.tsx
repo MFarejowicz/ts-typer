@@ -5,6 +5,7 @@ import './EndScreen.css';
 interface Props {
   score: number,
   maxStreak: number,
+  frames: number,
 }
 
 class EndScreen extends React.Component<Props> {
@@ -15,6 +16,9 @@ class EndScreen extends React.Component<Props> {
         <div className='text-section'>
           <h1>Stats</h1>
           <div className='stats text-block'>
+            <div>
+              Time survived: {this.calcTime(this.props.frames)} seconds
+            </div>
             <div>
               Score: {this.props.score}
             </div>
@@ -29,6 +33,10 @@ class EndScreen extends React.Component<Props> {
         </div>
       </div>
     );
+  }
+
+  calcTime = (frames: number) => {
+    return (frames * 20 / 1000).toFixed(2);
   }
 }
 

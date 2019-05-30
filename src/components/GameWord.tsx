@@ -6,6 +6,7 @@ interface Props {
   text: string;
   complete: boolean;
   active: boolean;
+  givenUp: boolean;
   charIndex: number;
   top: number;
   left: number;
@@ -22,11 +23,11 @@ class GameWord extends React.Component<Props, State> {
   }
   
   render() {
-    const { text, active, charIndex } = this.props;
+    const { text, givenUp, charIndex } = this.props;
 
     const liveStyle = {
-      border: (active) ? "2px solid #0e8c3a" : "2px solid black",
-      backgroundColor: (active) ? "#e8f4ed": "white",
+      border: this.decideBorder(),
+      backgroundColor: this.decideBackground(),
       top: `${this.props.top}vh`,
       left: `calc(100px + ${this.props.left}vw)`,
     };
@@ -36,11 +37,31 @@ class GameWord extends React.Component<Props, State> {
     }
 
     return (
-      <div className="word" style={liveStyle}>
-          <span className="word-start">{text.substring(0, charIndex)}</span>
-          <span className="word-end">{text.substring(charIndex)}</span>
+      <div className='word' style={liveStyle}>
+          <span className={(givenUp) ? 'start-red' : 'start-green'}>{text.substring(0, charIndex)}</span>
+          <span className={(givenUp) ? 'end-red' : 'end-green'}>{text.substring(charIndex)}</span>
       </div>
     );
+  }
+
+  decideBorder = () => {
+    if (this.props.givenUp) {
+      return '2px solid #db2929';
+    } else if (this.props.active) {
+      return '2px solid #0e8c3a';
+    } else {
+      return '2px solid black';
+    }
+  }
+
+  decideBackground = () => {
+    if (this.props.givenUp) {
+      return '#fbe9e9';
+    } else if (this.props.active) {
+      return '#e8f4ed';
+    } else {
+      return 'white';
+    }
   }
 
 }

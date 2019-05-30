@@ -1,3 +1,5 @@
+export const letterKeys = new Set('abcdefghijklmnopqrstuvwxyz ');
+
 export enum PHASE {
   START = 'START',
   ACTION = 'ACTION',
@@ -8,6 +10,7 @@ export interface Word {
   text: string;
   complete: boolean;
   active: boolean;
+  givenUp: boolean;
   charIndex: number;
   top: number;
   left: number;
@@ -71,6 +74,7 @@ export interface MoveWordsAction {
 
 export interface LoseHPAction {
   type: LOSE_HP;
+  amount: number;
 }
 
 export interface UpScoreAction {

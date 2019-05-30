@@ -5,6 +5,10 @@
   font-family: sans-serif;
 }
   
-.word-start {
-  color: #0E8C3A;
+.start-green {
+  color: #0e8c3a;
+}
+
+.start-red {
+  color: #db2929;
 }

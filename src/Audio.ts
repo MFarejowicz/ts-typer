@@ -5,6 +5,7 @@ import LVLUP from './resources/audio/lvlup.mp3';
 import CORRECT from './resources/audio/correct.mp3';
 import COMPLETE from './resources/audio/complete.mp3';
 import WRONG from './resources/audio/wrong.mp3';
+import GIVEUP from './resources/audio/giveup.mp3';
 import OOF from './resources/audio/oof.mp3';
 
 const audioMap = {
@@ -15,6 +16,7 @@ const audioMap = {
   'CORRECT': CORRECT,
   'COMPLETE': COMPLETE,
   'WRONG': WRONG,
+  'GIVEUP': GIVEUP,
   'OOF': OOF,
 }
 

@@ -40,9 +40,10 @@ export function moveWords(): GameActionType {
   }
 }
 
-export function loseHP(): GameActionType {
+export function loseHP(amount: number): GameActionType {
   return {
     type: LOSE_HP,
+    amount,
   }
 }
 

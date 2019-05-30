@@ -44,9 +44,13 @@ class StartScreen extends React.Component<Props> {
           <div className='text-block'>
             Words emerge from the right side of the screen. You must type out the word to destroy it. 
             <br/>
-            Once you start a word, you must finish it before starting another word. The current active word will be marked in green.
+            Once you start a word, you must either finish it or give it up to start another word. 
+            The current active word will be marked in green. 
+            To give up on a word, hit BACKSPACE. Giving up on a word will prevent you from ever typing out more of the word,
+            but will let you start another word and preserves your streak.
             <br/>
-            If a word reaches the DANGER ZONE on the left side (indicated in orange), you will lose HP.
+            If a word reaches the DANGER ZONE on the left side (indicated in orange), you will lose HP. 
+            The amount of HP you lose is the amount of untyped characters in the word.
             <br/>
             Every 10 seconds, the spawn rate of words will slightly increase. This will be indicated by a beep. Every 50 seconds,
             the speed of words will increase. This will be indicated by a bloop.

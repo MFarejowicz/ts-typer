@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import * as actions from './store/game/actions';
 import { AppState } from './store';
-import { PHASE, Word, GameActionType } from './store/game/types';
+import { PHASE, letterKeys, Word, GameActionType } from './store/game/types';
 import { parseText } from './TextParse';
 import { playAudio, stopAudio } from './Audio';
 import StartScreen from './components/StartScreen';
@@ -24,7 +24,7 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch<GameActionType>) => ({
   changePhase: (phase: PHASE) => dispatch(actions.changePhase(phase)),
-  loseHP: () => dispatch(actions.loseHP()),
+  loseHP: (amount: number) => dispatch(actions.loseHP(amount)),
   upScore: (amount: number) => dispatch(actions.upScore(amount)),
   upStreak: () => dispatch(actions.upStreak()),
   resetStreak: () => dispatch(actions.resetStreak()),
@@ -41,7 +41,7 @@ interface Props {
   streak: number;
   words: Word[];
   changePhase: (phase: PHASE) => GameActionType;
-  loseHP: () => GameActionType;
+  loseHP: (amount: number) => GameActionType;
   upScore: (amount: number) => GameActionType;
   upStreak: () => GameActionType;
   resetStreak: () => GameActionType;
@@ -99,10 +99,7 @@ class App extends React.Component<Props>{
     } else if (this.frame % 500 === 0) {
       this.spawnChance += 0.001;
       playAudio('BEEP');
-    }
-
-    console.log(this.maxStreak);
-    
+    }  
   }
 
   spawn = () => {
@@ -117,6 +114,7 @@ class App extends React.Component<Props>{
       text: this.choose(this.text),
       complete: false,
       active: false,
+      givenUp: false,
       charIndex: 0,
       top: newY,
       left: 95,
@@ -126,17 +124,20 @@ class App extends React.Component<Props>{
   }
 
   handleLoss = (index: number) => {
+    playAudio('OOF');
+    const word = this.props.words[index];
+    this.props.loseHP(word.text.length - word.charIndex);
     const newWords = [...this.props.words];
     newWords.splice(index, 1);
     this.props.updateWords(newWords);
-    this.props.loseHP();
-    playAudio('OOF');
   }
 
   handleKeyPress = (event: KeyboardEvent): void => {
+    const keyPressed = event.key.toLowerCase();
+
     switch (this.props.phase) {
       case PHASE.START:
-        if (event.key === ' ') {
+        if (keyPressed === ' ') {
           playAudio('START');
           playAudio('BACKGROUND');
           this.text = parseText(this.props.wordSet);
@@ -145,24 +146,30 @@ class App extends React.Component<Props>{
         }
         break;
       case PHASE.ACTION:
-          const guess = event.key.toLowerCase();
-          const activeIndex = this.getActiveIndex();
-              
-          if (activeIndex !== null) {
-            this.checkGuess(guess, activeIndex);
-          } else {
-            const matchingIndex = this.findMatchingIndex(guess);
-            
-            if (matchingIndex !== null) {
-              this.checkGuess(guess, matchingIndex);
+        const activeIndex = this.getActiveIndex();
+          
+        if (activeIndex !== null) {
+          if (keyPressed === 'backspace') {
+            playAudio('GIVEUP');
+            this.giveUpOnWord(activeIndex);
+          } else if (letterKeys.has(keyPressed)) {
+            this.checkGuess(keyPressed, activeIndex);
+          }
+        } else {
+          if (letterKeys.has(keyPressed)) {
+            const matchingIndex = this.findMatchingIndex(keyPressed);
+          
+            if (matchingIndex !== null) {                                  
+              this.checkGuess(keyPressed, matchingIndex);
             } else {
               playAudio('WRONG');
               this.props.resetStreak();
             }
           }
-          break;
+        }
+        break;
       case PHASE.END:
-          if (event.key === ' ') {
+          if (keyPressed === ' ') {
             this.internalReset();
             this.props.resetGame();
           }
@@ -194,7 +201,7 @@ class App extends React.Component<Props>{
             <SafeZone />
             <GameInfo hp={this.props.hp} score={this.props.score} streak={this.props.streak} />
             {this.props.words.map((el, index) => {
-              return <GameWord key={index} id={index} text={el.text} complete={el.complete} active={el.active} 
+              return <GameWord key={index} id={index} text={el.text} complete={el.complete} active={el.active} givenUp={el.givenUp}
                       charIndex={el.charIndex} top={el.top} left={el.left} speed={el.speed} handleLoss={this.handleLoss}/>
             })}
           </div>
@@ -202,7 +209,7 @@ class App extends React.Component<Props>{
       case PHASE.END:
         return (
           <div>
-            <EndScreen score={this.props.score} maxStreak={this.maxStreak} />
+            <EndScreen score={this.props.score} maxStreak={this.maxStreak} frames={this.frame} />
           </div>
         );
       default:
@@ -213,7 +220,7 @@ class App extends React.Component<Props>{
   getActiveIndex = (): number | null => {
     for (let i = 0; i < this.props.words.length; i++) {
       const word = this.props.words[i];
-      if (word.active) {
+      if (!word.givenUp && word.active) {
         return i;
       }
     }
@@ -223,7 +230,7 @@ class App extends React.Component<Props>{
   findMatchingIndex = (guess: string): number | null => {
     for (let i = 0; i < this.props.words.length; i++) {
       const word = this.props.words[i];
-      if (guess === word.text.charAt(0)) {
+      if (!word.givenUp && guess === word.text.charAt(0)) {
         return i;
       }
     }
@@ -237,6 +244,7 @@ class App extends React.Component<Props>{
   checkGuess = (guess: string, index: number): void => {
     const newWords = [...this.props.words];
     const currentWord = newWords[index];
+
     if (guess === currentWord.text.charAt(currentWord.charIndex)) {
       if (currentWord.charIndex === currentWord.text.length-1) {
         playAudio('COMPLETE');
@@ -244,7 +252,7 @@ class App extends React.Component<Props>{
         this.props.upStreak();
         this.props.upScore(1);
       } else {
-        playAudio('CORRECT', 0.5);
+        playAudio('CORRECT', 0.4);
         this.props.upStreak();
         currentWord.charIndex += 1;
         currentWord.active = true;
@@ -258,6 +266,14 @@ class App extends React.Component<Props>{
       playAudio('WRONG');
       this.props.resetStreak();
     }
+  }
+
+  giveUpOnWord = (index: number): void => {
+    const newWords = [...this.props.words];
+    const currentWord = newWords[index];
+    currentWord.active = false;
+    currentWord.givenUp = true;
+    this.props.updateWords(newWords);
   }
 }
 
