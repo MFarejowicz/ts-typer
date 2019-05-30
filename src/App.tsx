@@ -53,36 +53,44 @@ interface Props {
 class App extends React.Component<Props>{
   frame: number;
   spawnChance: number;
+  minSpawnFreq: number;
+  minSpawnCountdown: number;
+  prevTops: number[];
   speed: number;
   text: string[];
   maxStreak: number;
-  lastY: number;
   intervalID: NodeJS.Timeout;
   
   constructor(props: Props) {
     super(props);
     this.frame = 0;
-    this.spawnChance = 0.05;
+    this.spawnChance = 0.005;
+    this.minSpawnFreq = 50;
+    this.minSpawnCountdown = 25;
+    this.prevTops = [];
     this.speed = 0.2;
     this.maxStreak = 0;
-    this.lastY = 0;
   }
 
   internalReset = (): void => {
     this.frame = 0;
     this.spawnChance = 0.005;
+    this.minSpawnFreq = 50;
+    this.minSpawnCountdown = 25;
+    this.prevTops = [];
     this.speed = 0.2;
     this.maxStreak = 0;
-    this.lastY = 0;
   }
 
   tick = (): void => {
     // A tick happens every 1/50th of a second.    
     this.frame += 1;
+    this.minSpawnCountdown -= 1;
 
     this.props.moveWords();
 
-    if (Math.random() < this.spawnChance) {
+    if (this.minSpawnCountdown <= 0 && Math.random() < this.spawnChance) {
+      this.minSpawnCountdown = this.minSpawnFreq;
       this.spawn();
     }
 
@@ -99,6 +107,7 @@ class App extends React.Component<Props>{
       playAudio('LVLUP');
     } else if (this.frame % 500 === 0) {
       this.spawnChance += 0.001;
+      this.minSpawnFreq -= 1;
       playAudio('BEEP');
     }  
   }
@@ -264,35 +273,22 @@ class App extends React.Component<Props>{
     }
   }
 
-  pickWord = (): string => {
-    let newWord = this.choose(this.text);
-    while (this.firstLetterExists(newWord)) {
-      newWord = this.choose(this.text);
-    }
-    return newWord;
-  }
-
-  firstLetterExists = (newWord: string): boolean => {
-    const firstLetter = newWord.charAt(0);
-    return this.props.words.some(el => el.text.charAt(0) === firstLetter);
-  }
-
   pickTop = (): number => {
-    let newTop = Math.floor(Math.random() * 80) + 12;
-    while (this.topExists(newTop)) {
+    let newTop = Math.floor(Math.random() * 78) + 12;
+    while (this.overlapsAny(newTop)) {
       newTop = Math.floor(Math.random() * 80) + 12;
     }
+
+    this.prevTops.push(newTop);
+    if (this.prevTops.length > 5) {
+      this.prevTops.shift();
+    }
+    
     return newTop;
   }
 
-  topExists = (newTop: number): boolean => {
-    const lastEl = this.props.words[this.props.words.length-1];
-    if (lastEl) {
-      return Math.abs(newTop-lastEl.top) < 8;
-    } else {
-      return false;
-    }
-    // return this.props.words.some(el => Math.abs(newTop - el.top) < 8);
+  overlapsAny = (newTop: number): boolean => {
+    return this.prevTops.some(prevTop => Math.abs(prevTop - newTop) < 10);
   }
 
   giveUpOnWord = (index: number): void => {
