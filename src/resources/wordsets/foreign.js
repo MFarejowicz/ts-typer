@@ -2,21 +2,17 @@ const text = `ballet
 bouillabaise
 cabernet
 cachet
-chaise longue
 champagne
 chic
 cognac
 corsage
-faux pas
-nom de plume
+faux-pas
 quiche
 rouge
 roulet
 sachet
 salon
 saloon
-sang froid
-savoir faire
 bastion
 brigade
 battalion
@@ -80,7 +76,7 @@ motto
 piano
 opera
 pantaloons
-prima donna
+primadonna
 regatta
 sequin
 soprano
@@ -211,7 +207,6 @@ goy
 klutz
 knish
 matzoh
-oy vey
 schmuck
 schnook
 fjord
@@ -315,16 +310,13 @@ tomahawk
 tomato
 wigwam
 woodchuck
-chop suey
-chow mein
-dim sum
 ketchup
 tea
 ginseng
 kowtow
 litchee
 geisha
-hara kiri
+harakiri
 judo
 jujitsu
 kamikaze

@@ -106,7 +106,7 @@ class App extends React.Component<Props>{
       this.speed += 0.05;
       playAudio('LVLUP');
     } else if (this.frame % 500 === 0) {
-      this.spawnChance += 0.001;
+      this.spawnChance += 0.002;
       this.minSpawnFreq -= 1;
       playAudio('BEEP');
     }  
@@ -115,7 +115,7 @@ class App extends React.Component<Props>{
   spawn = () => {
     const newWords = [...this.props.words];
     newWords.push({
-      text: this.choose(this.text),
+      text: this.pickWord(),
       complete: false,
       active: false,
       givenUp: false,
@@ -273,10 +273,26 @@ class App extends React.Component<Props>{
     }
   }
 
+  pickWord = (): string => {
+    let newWord = this.choose(this.text);
+    while (this.firstLetterExists(newWord)) {
+      // This is not entirely bug free. If we ever try to spawn a word with 26
+      // already on screen, this will hang. However, I don't foresee more than
+      // 10 words ever on screen, so we should be fine.
+      newWord = this.choose(this.text);
+    }
+    return newWord;
+  }
+
+   firstLetterExists = (newWord: string): boolean => {
+    const firstLetter = newWord.charAt(0);
+    return this.props.words.some(el => el.text.charAt(0) === firstLetter);
+  }
+
   pickTop = (): number => {
     let newTop = Math.floor(Math.random() * 78) + 12;
     while (this.overlapsAny(newTop)) {
-      newTop = Math.floor(Math.random() * 80) + 12;
+      newTop = Math.floor(Math.random() * 78) + 12;
     }
 
     this.prevTops.push(newTop);
